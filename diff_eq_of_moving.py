@@ -3,7 +3,7 @@
 
 # Прости Дени но тут пока в СГС
 
-m = 0.01 # масса в граммах
+m = 0.01 # масса в килограммах
 c = 3*10**10 # скорость света
 mu0 = 1.25663706 * 10**-6
 
@@ -33,13 +33,13 @@ def step_handler(t, vars):
 
 
 # время движения
-tmax = 10
+tmax = 7
 
 # подрубаем scipy для решения диффура
 import numpy as np
 from scipy.integrate import ode
 ODE = ode(f)
-ODE.set_integrator('dopri5', max_step=0.0001)
+ODE.set_integrator('dopri5', max_step=0.001, nsteps=70000)
 ODE.set_solout(step_handler)
 
 ODE.set_initial_value(np.array([0, 0]), 0)  # задание начальных значений
@@ -51,7 +51,10 @@ print(ts)
 import matplotlib.pyplot as plt
 fig, axs = plt.subplots(2)
 fig.suptitle('Vertically stacked subplots')
+#axs[0].plot(ts[:700], xs[:700])
 axs[0].plot(ts, xs)
+#axs[0].title("x(t)")
+#axs[1].plot(ts[1530:1550], vs[1530:1550])
 axs[1].plot(ts, vs)
 plt.show()
 
