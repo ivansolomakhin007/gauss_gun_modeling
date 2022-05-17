@@ -105,6 +105,20 @@ n_circuit = 1
 
 
 
+def current_for_plot(t, vars, circuit):
+    """тестовая функция чтобы было удобно плотить. поменяли только t на 0 чтобы работало"""
+    x = vars[0]
+    if x >= circuit.x0:
+        if not circuit.t0:
+            circuit.t0 = 0 # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
+        gamma = circuit.R / (2 * circuit.L)
+        omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
+       # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
+        return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+                    -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
+    return 0
+
+
 def main():
     """
         n_circuit - количество RLC цепей
@@ -126,14 +140,18 @@ def main():
     print(ts)
 
     import matplotlib.pyplot as plt
-    fig, axs = plt.subplots(2)
+    fig, axs = plt.subplots(3)
     fig.suptitle('Vertically stacked subplots')
     # axs[0].plot(ts[:700], xs[:700])
+    # координата от времени
     axs[0].plot(ts, xs)
     #axs[0].set_xlim([0, 5])
     # axs[0].title("x(t)")
     # axs[1].plot(ts[1530:1550], vs[1530:1550])
+    # скорость от времени
     axs[1].plot(ts, vs)
+    # ток от времени
+    axs[2].plot(ts, current(np.array(ts), [-0.05, 0], circuits[0]))
     #axs[1].set_xlim([0, 5])
     # axs[1].title("v(t)")
 
