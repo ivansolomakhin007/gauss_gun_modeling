@@ -34,7 +34,7 @@ class Circuit:
         self.R = R
         self.x1 = x1
         self.x2 = x2
-        self.t0 = None
+        self.t0 = -1
 
 
 # складируем времена, координаты и скорости
@@ -46,8 +46,8 @@ vs = []
 def current(t, vars, circuit):
     """Ток теперь функция координаты"""
     x = vars[0]
-    if x >= circuit.x0:
-        if not circuit.t0:
+    if x >= circuit.x0 or circuit.t0 != -1:
+        if circuit.t0 == -1:
             circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
         gamma = circuit.R / (2 * circuit.L)
         omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
@@ -60,7 +60,7 @@ def current(t, vars, circuit):
 def check_circuit(t, vars, circuit):
     x = vars[0]
     if x >= circuit.x0:
-        if not circuit.t0:
+        if circuit.t0 == -1:
             circuit.t0 = t
 
 
@@ -84,7 +84,8 @@ def f(t, vars):
     force = 0
     for circuit in circuits:
         check_circuit(t, vars, circuit)
-        if circuit.t0:
+        if circuit.t0 != -1:
+            print("хуй говно")
             force += force_by_induct(t, vars, circuit)
     return np.array([vars[1], force])
 
@@ -108,8 +109,8 @@ n_circuit = 1
 def current_for_plot(t, vars, circuit):
     """тестовая функция чтобы было удобно плотить. поменяли только t на 0 чтобы работало"""
     x = vars[0]
-    if x >= circuit.x0:
-        if not circuit.t0:
+    if x >= circuit.x0  or circuit.t0 != -1:
+        if circuit.t0 == -1:
             circuit.t0 = 0 # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
         gamma = circuit.R / (2 * circuit.L)
         omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
@@ -125,11 +126,11 @@ def main():
         circuits- массив с параметрами RLC цепей
         """
     # время движения
-    tmax = 0.0001
+    tmax = 1
     import numpy as np
     from scipy.integrate import ode
     ODE = ode(f)  # тут есть f1 и f. f написано кривыми ручками и рассчитано на бумажке f1 посчитал вольфрам
-    ODE.set_integrator('dopri5', max_step=0.001, nsteps=70000)
+    ODE.set_integrator('dopri5', max_step=0.000001, nsteps=70000)
     ODE.set_solout(step_handler)
 
     ODE.set_initial_value(np.array([-0.05, 0]), 0)  # задание начальных значений
