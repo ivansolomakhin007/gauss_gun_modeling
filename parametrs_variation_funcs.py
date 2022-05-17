@@ -2,6 +2,7 @@ import numpy as np
 from math import e, pi, cos, sin
 
 m = 0.001  # масса шара
+p = 0.07 # Дж/Тл
 mu0 = 1.25663706 * 10 ** -6  # магнитная константа
 
 S = 1 # мм^2
@@ -28,6 +29,7 @@ class Circuit:
         self.n = 1 / d
         self.D = D
         self.L = mu0 * self.n**2 * (x2 - x1) * pi * D**2
+        print("Индуктивность схема:", self.L)
         self.C = C
         self.R = R
         self.x1 = x1
@@ -46,11 +48,12 @@ def current(t, vars, circuit):
     x = vars[0]
     if x >= circuit.x0:
         if not circuit.t0:
-            circuit.t0 = t
+            circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
         gamma = circuit.R / (2 * circuit.L)
         omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
-        return circuit.C * circuit.U0 * e ** (-gamma * t) * (
-                    -gamma * cos(omega * (t - circuit.t0)) + omega * sin(omega * (t - circuit.t0)))
+       # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
+        return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+                    -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
     return 0
 
 
@@ -69,11 +72,11 @@ def force_by_induct(t, vars, circuit):
     D = circuit.D
     x = vars[0]
     x_new = x - (circuit.x2 + circuit.x1)  # координата шарика относительно катушки
-    print(I, n, length, D, x, x_new)
+    #print(I, n, length, D, x, x_new)
 
     return mu0 / 2 * I * n * 8 * D ** 2 * (
             1 / ((length + 2 * x_new) ** 2 + 4 * D ** 2) ** (3 / 2) - 1 / ((length - 2 * x_new) ** 2 + 4 * D ** 2) ** (
-                3 / 2)) / m
+                3 / 2)) * p / m
 
 
 def f(t, vars):
@@ -97,7 +100,7 @@ def step_handler(t, vars):
 
 # n_circuit
 #  circuits
-circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.3, D=0.01, x1=-0.05, x2=0.05), ]
+circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05), ]
 n_circuit = 1
 
 
@@ -108,7 +111,7 @@ def main():
         circuits- массив с параметрами RLC цепей
         """
     # время движения
-    tmax = 1
+    tmax = 0.0001
     import numpy as np
     from scipy.integrate import ode
     ODE = ode(f)  # тут есть f1 и f. f написано кривыми ручками и рассчитано на бумажке f1 посчитал вольфрам
@@ -127,9 +130,11 @@ def main():
     fig.suptitle('Vertically stacked subplots')
     # axs[0].plot(ts[:700], xs[:700])
     axs[0].plot(ts, xs)
+    #axs[0].set_xlim([0, 5])
     # axs[0].title("x(t)")
     # axs[1].plot(ts[1530:1550], vs[1530:1550])
     axs[1].plot(ts, vs)
+    #axs[1].set_xlim([0, 5])
     # axs[1].title("v(t)")
 
     x = np.arange(-2, 2, 0.01)
@@ -138,3 +143,15 @@ def main():
 
 
 main()
+
+
+
+def current_plot():
+    t = np.arange(0.0, 0.1, 0.0001)
+    import matplotlib.pyplot as plt
+    #c1 = np.vectorize(current)
+    print(current(t, np.array([-0.05, 0.0]), circuits[0]))
+    plt.plot(t, current(t, [-0.05, 0], circuits[0]))
+    plt.show()
+
+#current_plot()
