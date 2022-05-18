@@ -50,12 +50,36 @@ def current(t, vars, circuit):
         if circuit.t0 == -1:
             circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
         gamma = circuit.R / (2 * circuit.L)
-        omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
-       # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-        return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+        omega0 = 1 / (circuit.L * circuit.C) ** 0.5
+        if omega0 > gamma:
+            print("Живем в периодическом режиме")
+            omega = (omega0 ** 2 - gamma ** 2) ** 0.5
+            # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
+            return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
                     -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
+        elif omega0 == gamma:
+            return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
+        else:
+            print("Живем в апериодическом режиме")
+            epsilon = (- omega0 ** 2 + gamma ** 2) ** 0.5
+            print(circuit.C * circuit.U0 * (epsilon ** 2 - gamma ** 2) / (2 * epsilon) * e**(-(t - circuit.t0) * gamma) * (
+                               e**((t - circuit.t0) * epsilon) - e**(-((t - circuit.t0) * epsilon))))
+            try:
+                return circuit.C * circuit.U0 * (epsilon ** 2 - gamma ** 2) / (2 * epsilon) * e**(-(t - circuit.t0) * gamma) * (
+                               e**((t - circuit.t0) * epsilon) - e**(-((t - circuit.t0) * epsilon)))
+            except:
+                pass
+
     return 0
 
+
+# if circuit.t0 == -1:
+#             circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
+#         gamma = circuit.R / (2 * circuit.L)
+#         omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
+#        # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
+#         return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+#                     -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
 
 def check_circuit(t, vars, circuit):
     x = vars[0]
@@ -85,7 +109,6 @@ def f(t, vars):
     for circuit in circuits:
         check_circuit(t, vars, circuit)
         if circuit.t0 != -1:
-            print("хуй говно")
             force += force_by_induct(t, vars, circuit)
     return np.array([vars[1], force])
 
@@ -101,7 +124,7 @@ def step_handler(t, vars):
 
 # n_circuit
 #  circuits
-circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05), ]
+circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.1, D=0.001, x1=-0.05, x2=0.05), ]
 n_circuit = 1
 
 
@@ -113,10 +136,19 @@ def current_for_plot(t, vars, circuit):
         if circuit.t0 == -1:
             circuit.t0 = 0 # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
         gamma = circuit.R / (2 * circuit.L)
-        omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
+        omega0 = 1 / (circuit.L * circuit.C)**0.5
+        if omega0 > gamma:
+            omega = 1 / (omega0**2 - gamma ** 2) ** 0.5
        # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-        return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+            return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
                     -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
+        if omega0 == gamma:
+            return circuit.C * circuit.U0 * gamma**2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
+        else:
+            epsilon = (- omega0**2 + gamma ** 2) ** 0.5
+            return circuit.C * circuit.U0 * (epsilon**2 - gamma**2)/(2*epsilon) * (e**(-(t - circuit.t0)*gamma)) * (e**((t - circuit.t0)*epsilon) - e**(-((t - circuit.t0)*epsilon)))
+
+
     return 0
 
 
@@ -126,11 +158,11 @@ def main():
         circuits- массив с параметрами RLC цепей
         """
     # время движения
-    tmax = 1
+    tmax = 20
     import numpy as np
     from scipy.integrate import ode
     ODE = ode(f)  # тут есть f1 и f. f написано кривыми ручками и рассчитано на бумажке f1 посчитал вольфрам
-    ODE.set_integrator('dopri5', max_step=0.000001, nsteps=70000)
+    ODE.set_integrator('dopri5', max_step=0.0001, nsteps=70000)
     ODE.set_solout(step_handler)
 
     ODE.set_initial_value(np.array([-0.05, 0]), 0)  # задание начальных значений
