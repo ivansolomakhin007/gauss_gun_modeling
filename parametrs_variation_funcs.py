@@ -55,7 +55,7 @@ def current(t, vars, circuit):
             print("Живем в периодическом режиме")
             omega = (omega0 ** 2 - gamma ** 2) ** 0.5
             # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-            return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+            return circuit.C * circuit.U0 * e ** (-gamma * t) * (
                     -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
         elif omega0 == gamma:
             return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
@@ -123,7 +123,8 @@ def step_handler(t, vars):
 
 # n_circuit
 #  circuits
-circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.1, D=0.001, x1=-0.05, x2=0.05), ]
+#circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-5), R=0.1, D=0.001, x1=-0.05, x2=0.05), ]
+circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05), ]
 n_circuit = 1
 
 
@@ -157,11 +158,11 @@ def main():
         circuits- массив с параметрами RLC цепей
         """
     # время движения
-    tmax = 20
+    tmax = 5
     import numpy as np
     from scipy.integrate import ode
     ODE = ode(f)  # тут есть f1 и f. f написано кривыми ручками и рассчитано на бумажке f1 посчитал вольфрам
-    ODE.set_integrator('dopri5', max_step=0.0001, nsteps=70000)
+    ODE.set_integrator('dopri5', max_step=0.001, nsteps=70000)
     ODE.set_solout(step_handler)
 
     ODE.set_initial_value(np.array([-0.05, 0]), 0)  # задание начальных значений
@@ -193,6 +194,7 @@ def main():
 
 
 main()
+#print(max(xs))
 
 
 
