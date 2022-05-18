@@ -62,13 +62,12 @@ def current(t, vars, circuit):
         else:
             print("Живем в апериодическом режиме")
             epsilon = (- omega0 ** 2 + gamma ** 2) ** 0.5
-            print(circuit.C * circuit.U0 * (epsilon ** 2 - gamma ** 2) / (2 * epsilon) * e**(-(t - circuit.t0) * gamma) * (
-                               e**((t - circuit.t0) * epsilon) - e**(-((t - circuit.t0) * epsilon))))
+
             try:
                 return circuit.C * circuit.U0 * (epsilon ** 2 - gamma ** 2) / (2 * epsilon) * e**(-(t - circuit.t0) * gamma) * (
                                e**((t - circuit.t0) * epsilon) - e**(-((t - circuit.t0) * epsilon)))
-            except:
-                pass
+            except OverflowError:
+                return 0
 
     return 0
 
