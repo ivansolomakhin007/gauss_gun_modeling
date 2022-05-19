@@ -1,6 +1,7 @@
 import numpy as np
 from math import e, pi, cos, sin
 
+
 m = 0.001  # масса шара
 p = 0.07 # Дж/Тл
 mu0 = 1.25663706 * 10 ** -6  # магнитная константа
@@ -64,7 +65,7 @@ def main(circuits, n_circuits):
                 #print("Живем в периодическом режиме")
                 omega = (omega0 ** 2 - gamma ** 2) ** 0.5
                 # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-                return circuit.C * circuit.U0 * e ** (-gamma * t) * (
+                return circuit.C * circuit.U0 * e ** (-gamma * (t- circuit.t0)) * (
                         -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
             elif omega0 == gamma:
                 return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
@@ -178,10 +179,10 @@ def main(circuits, n_circuits):
     #print(xs)
     #print(vs)
     #print(ts)
-    return ts, xs, vs, Is
+    #return ts, xs, vs, Is
 
     import matplotlib.pyplot as plt
-    fig, axs = plt.subplots(3)
+    fig, axs = plt.subplots(5)
     fig.suptitle('Vertically stacked subplots')
     # axs[0].plot(ts[:700], xs[:700])
     # координата от времени
@@ -190,9 +191,18 @@ def main(circuits, n_circuits):
     # axs[0].title("x(t)")
     # axs[1].plot(ts[1530:1550], vs[1530:1550])
     # скорость от времени
+    axs[0].set_title(r"Координата $x$ от времени $t$")
     axs[1].plot(ts, vs)
+    axs[1].set_title(r"Скорость $v$ от времени $t$")
     # ток от времени
-    axs[2].plot(ts, current(np.array(ts), [-0.05, 0], circuits[0]))
+    print(current(np.array(ts), [-0.05, 0], circuits[0]))
+    print(max(Is[1]))
+    axs[2].plot(ts, Is[0])
+    axs[2].set_title(r"Ток $I$ в цепи №1 от времени $t$")
+    axs[3].plot(ts, Is[1])
+    axs[3].set_title(r"Ток $I$ в цепи №2 от времени $t$")
+    axs[4].plot(ts, Is[2])
+    axs[4].set_title(r"Ток $I$ в цепи №3 от времени $t$")
     #axs[1].set_xlim([0, 5])
     # axs[1].title("v(t)")
 
@@ -200,11 +210,27 @@ def main(circuits, n_circuits):
     # plt.plot(x, f1(0, [x, 0])[1])
     plt.show()
     #return ts, xs, vs, Is
+    return ts, xs, vs, Is
 
 
 if __name__ == "__main__":
-    circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05, d=0.002), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2, d=0.002)]
-    n_circuit = 2
+    n_circuit = 3
+    def create_circuits(args):
+        Circuits = []
+        for i in range(n_circuit):
+            Circuits.append(Circuit(*args[i]))
+        return Circuits
+    good_circuit = np.array([[12.458233916180461, 0.6030454188449583, 0.10040643898725007, 0.39270207622388487, 0.6026158237331962, 0.3030899913787122, 0.046431740741472646, 0.001784124116152771],
+[1.5692778946870756, 0.6173846265217682, 0.00012796282308287797, 0.903188183256714, 0.7026522669977449, 0.001059592317529516, 0.03748410297345381, 0.00451351666838205],
+[5.0634897936052115, -0.7771950942245056, 0.19815932735064856, 0.010042233877513684, 0.8795643961507403, 0.03367287704474973, 0.0995586783271452, 0.0007978845608028653]])
+    circuits = create_circuits(good_circuit)
+#     good_circuit = np.array([[2.1658215629444566, 0.36710242019133843, 0.007755551990353316, 0.05020076578246202, 0.7300531578543034, 36.97109760679317, 0.04543103536452905, 0.006675581178124545],
+# [2.6350425737266914, 0.912618412522167, 0.000611925901507773, 0.4632898504160191, 0.8980985544097955, 13.367566354619006, 0.03287848511037851, 0.002763953195770684],
+# [0.5949255457166269, -0.35677927363524087, 3.2900264404250747, 0.06017557745610236, 0.38095221401903, 0.011453375822213847, 0.06570785792367652, 0.0009772050238058398]])
+#     circuits = create_circuits(good_circuit)
+    # circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05, d=0.002),
+    #             Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.001, D=0.001, x1=0.1, x2=0.2, d=0.002)]
+    # n_circuit = 2
 
     a, b, c, d = main(circuits, n_circuit)
     print(a)
@@ -212,5 +238,3 @@ if __name__ == "__main__":
     print(c)
     print(d)
     print(c[-1])
-#print(max(xs))
-
