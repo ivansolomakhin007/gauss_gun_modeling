@@ -6,6 +6,9 @@ p, v = np.polyfit(np.log(s1), np.log(s2), deg = 1, cov = True)
 x = np.arange(min(s1), max(s1), (max(s1)-min(s1))/1000)
 plt.plot(s1, s2, 'bs')
 plt.plot(x, np.exp(p[1])*x**p[0])
+plt.ylabel(r'$I_{max}, A$', fontsize = 14)
+plt.xlabel(r'$S, мм^2$',  fontsize = 14)
+
 print(p)
 plt.show()
 
