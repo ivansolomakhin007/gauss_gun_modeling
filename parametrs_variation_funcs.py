@@ -6,7 +6,6 @@ p = 0.07 # Дж/Тл
 mu0 = 1.25663706 * 10 ** -6  # магнитная константа
 
 S = 1 # мм^2
-d = 2*(S/pi)**0.5 * 10**-3 # м
 
 
 
@@ -23,20 +22,23 @@ class Circuit:
        t0 - храним время зажигания системы. None -> цепь еще не включилась
        """
 
-    def __init__(self, U0, x0, C, x1, x2, R, D):
+    def __init__(self, U0, x0, C, x1, x2, R, D, d):
         self.U0 = U0
         self.x0 = x0
+        self.d = d
         self.n = 1 / d
         self.D = D
         self.L = mu0 * self.n**2 * (x2 - x1) * pi * D**2
-        print("Индуктивность схема:", self.L)
+        #print("Индуктивность схема:", self.L)
         self.C = C
         self.R = R
         self.x1 = x1
         self.x2 = x2
         self.t0 = -1
+    def __str__(self):
+        return [self.U0, self.x0, self.C, self.x1, self.x2, self.R, self.D]
 
-def main(circuit, n_circuits):
+def main(circuits, n_circuits):
     # складируем времена, координаты и скорости
     ts = []
     xs = []
@@ -170,9 +172,10 @@ def main(circuit, n_circuits):
     ODE.set_initial_value(np.array([-0.05, 0]), 0)  # задание начальных значений
     ODE.integrate(tmax)  # решение ОДУ
 
-    print(xs)
-    print(vs)
-    print(ts)
+    #print(xs)
+    #print(vs)
+    #print(ts)
+    return ts, xs, vs, Is
 
     import matplotlib.pyplot as plt
     fig, axs = plt.subplots(3)
@@ -193,16 +196,15 @@ def main(circuit, n_circuits):
     x = np.arange(-2, 2, 0.01)
     # plt.plot(x, f1(0, [x, 0])[1])
     plt.show()
-    return ts, xs, vs, Is
 
+if __name__ == "__main__":
+    circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05, d=0.002), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2, d=0.002)]
+    n_circuit = 2
 
-circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2)]
-n_circuit = 2
-
-a, b, c, d = main(circuits, n_circuit)
-print(a)
-print(b)
-print(c)
-print(d)
+    a, b, c, d = main(circuits, n_circuit)
+    print(a)
+    print(b)
+    print(c)
+    print(d)
 #print(max(xs))
 
