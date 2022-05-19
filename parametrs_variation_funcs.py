@@ -36,127 +36,125 @@ class Circuit:
         self.x2 = x2
         self.t0 = -1
 
-
-# складируем времена, координаты и скорости
-ts = []
-xs = []
-vs = []
-
-
-def current(t, vars, circuit):
-    """Ток теперь функция координаты"""
-    x = vars[0]
-    if x >= circuit.x0 or circuit.t0 != -1:
-        if circuit.t0 == -1:
-            circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
-        gamma = circuit.R / (2 * circuit.L)
-        omega0 = 1 / (circuit.L * circuit.C) ** 0.5
-        if omega0 > gamma:
-            print("Живем в периодическом режиме")
-            omega = (omega0 ** 2 - gamma ** 2) ** 0.5
-            # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-            return circuit.C * circuit.U0 * e ** (-gamma * t) * (
-                    -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
-        elif omega0 == gamma:
-            return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
-        else:
-            print("Живем в апериодическом режиме")
-            epsilon = (- omega0 ** 2 + gamma ** 2) ** 0.5
-
-            try:
-                return circuit.C * circuit.U0 * (epsilon ** 2 - gamma ** 2) / (2 * epsilon) * e**(-(t - circuit.t0) * gamma) * (
-                               e**((t - circuit.t0) * epsilon) - e**(-((t - circuit.t0) * epsilon)))
-            except OverflowError:
-                return 0
-
-    return 0
+def main(circuit, n_circuits):
+    # складируем времена, координаты и скорости
+    ts = []
+    xs = []
+    vs = []
+    Is = []
+    for i in range(n_circuits):
+        Is.append([])
+    # 2d array токов, iй схеме сопоставлен iй массив токов в каждый момент времени
 
 
-# if circuit.t0 == -1:
-#             circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
-#         gamma = circuit.R / (2 * circuit.L)
-#         omega = (1 / (circuit.L * circuit.C) - gamma ** 2) ** 0.5
-#        # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-#         return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
-#                     -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
+    def current(t, vars, circuit):
+        """Ток теперь функция координаты"""
+        x = vars[0]
+        if x >= circuit.x0 or circuit.t0 != -1:
+            if circuit.t0 == -1:
+                circuit.t0 = t # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
+            gamma = circuit.R / (2 * circuit.L)
+            omega0 = 1 / (circuit.L * circuit.C) ** 0.5
+            if omega0 > gamma:
+                print("Живем в периодическом режиме")
+                omega = (omega0 ** 2 - gamma ** 2) ** 0.5
+                # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
+                return circuit.C * circuit.U0 * e ** (-gamma * t) * (
+                        -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
+            elif omega0 == gamma:
+                return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
+            else:
+                print("Живем в апериодическом режиме")
+                epsilon = (- omega0 ** 2 + gamma ** 2) ** 0.5
 
-def check_circuit(t, vars, circuit):
-    x = vars[0]
-    if x >= circuit.x0:
-        if circuit.t0 == -1:
-            circuit.t0 = t
+                try:
+                    return circuit.C * circuit.U0 * (epsilon ** 2 - gamma ** 2) / (2 * epsilon) * e**(-(t - circuit.t0) * gamma) * (
+                                   e**((t - circuit.t0) * epsilon) - e**(-((t - circuit.t0) * epsilon)))
+                except OverflowError:
+                    return 0
+
+        return 0
 
 
 
-def force_by_induct(t, vars, circuit):
-    I = current(t, vars, circuit)
-    n = circuit.n
-    length = circuit.x2 - circuit.x1
-    D = circuit.D
-    x = vars[0]
-    x_new = x - (circuit.x2 + circuit.x1)  # координата шарика относительно катушки
-    #print(I, n, length, D, x, x_new)
-
-    return mu0 / 2 * I * n * 8 * D ** 2 * (
-            1 / ((length + 2 * x_new) ** 2 + 4 * D ** 2) ** (3 / 2) - 1 / ((length - 2 * x_new) ** 2 + 4 * D ** 2) ** (
-                3 / 2)) * p / m
+    def check_circuit(t, vars, circuit):
+        x = vars[0]
+        if x >= circuit.x0:
+            if circuit.t0 == -1:
+                circuit.t0 = t
 
 
-def f(t, vars):
-    x = vars[0]
-    force = 0
-    for circuit in circuits:
-        check_circuit(t, vars, circuit)
-        if circuit.t0 != -1:
-            force += force_by_induct(t, vars, circuit)
-    return np.array([vars[1], force])
+
+    def force_by_induct(t, vars, circuit):
+        I = current(t, vars, circuit)
+        n = circuit.n
+        length = circuit.x2 - circuit.x1
+        D = circuit.D
+        x = vars[0]
+        x_new = x - (circuit.x2 + circuit.x1)  # координата шарика относительно катушки
+        #print(I, n, length, D, x, x_new)
+
+        return mu0 / 2 * I * n * 8 * D ** 2 * (
+                1 / ((length + 2 * x_new) ** 2 + 4 * D ** 2) ** (3 / 2) - 1 / ((length - 2 * x_new) ** 2 + 4 * D ** 2) ** (
+                    3 / 2)) * p / m
+
+
+    def f(t, vars):
+        x = vars[0]
+        force = 0
+        for circuit in circuits:
+            check_circuit(t, vars, circuit)
+            if circuit.t0 != -1:
+                force += force_by_induct(t, vars, circuit)
+        return np.array([vars[1], force])
 
 
 
 
-def step_handler(t, vars):
-    """Обработчик шага"""
-    ts.append(t)
-    xs.append(vars[0])
-    vs.append(vars[1])
+    def step_handler(t, vars):
+        """Обработчик шага"""
+        ts.append(t)
+        xs.append(vars[0])
+        vs.append(vars[1])
+        Is.ap
 
 
-# n_circuit
-#  circuits
-#circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-5), R=0.1, D=0.001, x1=-0.05, x2=0.05), ]
-circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05), ]
-n_circuit = 1
+    # n_circuit
+    #  circuits
+    #circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-5), R=0.1, D=0.001, x1=-0.05, x2=0.05), ]
+    #circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05), ]
+    # #n_circuit = 1
+    # circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.0001, D=0.001, x1=0.1, x2=0.2)]
+    # n_circuit = 2
 
 
 
-def current_for_plot(t, vars, circuit):
-    """тестовая функция чтобы было удобно плотить. поменяли только t на 0 чтобы работало"""
-    x = vars[0]
-    if x >= circuit.x0  or circuit.t0 != -1:
-        if circuit.t0 == -1:
-            circuit.t0 = 0 # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
-        gamma = circuit.R / (2 * circuit.L)
-        omega0 = 1 / (circuit.L * circuit.C)**0.5
-        if omega0 > gamma:
-            omega = 1 / (omega0**2 - gamma ** 2) ** 0.5
-       # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
-            return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
-                    -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
-        if omega0 == gamma:
-            return circuit.C * circuit.U0 * gamma**2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
-        else:
-            epsilon = (- omega0**2 + gamma ** 2) ** 0.5
-            return circuit.C * circuit.U0 * (epsilon**2 - gamma**2)/(2*epsilon) * (e**(-(t - circuit.t0)*gamma)) * (e**((t - circuit.t0)*epsilon) - e**(-((t - circuit.t0)*epsilon)))
+    def current_for_plot(t, vars, circuit):
+        """тестовая функция чтобы было удобно плотить. поменяли только t на 0 чтобы работало"""
+        x = vars[0]
+        if x >= circuit.x0  or circuit.t0 != -1:
+            if circuit.t0 == -1:
+                circuit.t0 = 0 # ОЧЕНЬ ВАЖНО ПОСЛЕ ВСЕГО ПОМЕНЯТЬ НА t
+            gamma = circuit.R / (2 * circuit.L)
+            omega0 = 1 / (circuit.L * circuit.C)**0.5
+            if omega0 > gamma:
+                omega = 1 / (omega0**2 - gamma ** 2) ** 0.5
+           # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
+                return -circuit.C * circuit.U0 * e ** (-gamma * t) * (
+                        -gamma * np.cos(omega * (t - circuit.t0)) + omega * np.sin(omega * (t - circuit.t0)))
+            if omega0 == gamma:
+                return circuit.C * circuit.U0 * gamma**2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
+            else:
+                epsilon = (- omega0**2 + gamma ** 2) ** 0.5
+                return circuit.C * circuit.U0 * (epsilon**2 - gamma**2)/(2*epsilon) * (e**(-(t - circuit.t0)*gamma)) * (e**((t - circuit.t0)*epsilon) - e**(-((t - circuit.t0)*epsilon)))
 
 
-    return 0
+        return 0
 
 
-def main():
-    """
-        n_circuit - количество RLC цепей
-        circuits- массив с параметрами RLC цепей
-        """
+#def main():
+    """n_circuit - количество RLC цепей
+        circuits- массив с параметрами RLC цепей"""
     # время движения
     tmax = 5
     import numpy as np
@@ -164,6 +162,9 @@ def main():
     ODE = ode(f)  # тут есть f1 и f. f написано кривыми ручками и рассчитано на бумажке f1 посчитал вольфрам
     ODE.set_integrator('dopri5', max_step=0.001, nsteps=70000)
     ODE.set_solout(step_handler)
+    # circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05),
+    #             Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.0001, D=0.001, x1=0.1, x2=0.2)]
+    # n_circuit = 2
 
     ODE.set_initial_value(np.array([-0.05, 0]), 0)  # задание начальных значений
     ODE.integrate(tmax)  # решение ОДУ
@@ -184,6 +185,9 @@ def main():
     # скорость от времени
     axs[1].plot(ts, vs)
     # ток от времени
+    I = []
+    for i in range(len(circuits)):
+        I.append(current(np.array(ts), [-0.05, 0], circuits[i]))
     axs[2].plot(ts, current(np.array(ts), [-0.05, 0], circuits[0]))
     #axs[1].set_xlim([0, 5])
     # axs[1].title("v(t)")
@@ -191,19 +195,15 @@ def main():
     x = np.arange(-2, 2, 0.01)
     # plt.plot(x, f1(0, [x, 0])[1])
     plt.show()
+    return ts, xs, vs
 
 
-main()
+circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.0001, D=0.001, x1=0.1, x2=0.2)]
+n_circuit = 2
+
+a, b, c = main(circuits, n_circuit)
+print(a)
+print(b)
+print(c)
 #print(max(xs))
 
-
-
-def current_plot():
-    t = np.arange(0.0, 0.1, 0.0001)
-    import matplotlib.pyplot as plt
-    #c1 = np.vectorize(current)
-    print(current(t, np.array([-0.05, 0.0]), circuits[0]))
-    plt.plot(t, current(t, [-0.05, 0], circuits[0]))
-    plt.show()
-
-#current_plot()
