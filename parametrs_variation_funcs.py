@@ -119,7 +119,7 @@ def main(circuits, n_circuits):
         xs.append(vars[0])
         vs.append(vars[1])
         for i in range(n_circuits):
-             Is[i].append(current(t, [vars[0], vars[1]], circuits[1]))
+             Is[i].append(current(t, [vars[0], vars[1]], circuits[i]))
 
 
     # n_circuit
@@ -196,6 +196,7 @@ def main(circuits, n_circuits):
     x = np.arange(-2, 2, 0.01)
     # plt.plot(x, f1(0, [x, 0])[1])
     plt.show()
+    #return ts, xs, vs, Is
 
 if __name__ == "__main__":
     circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05, d=0.002), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2, d=0.002)]
@@ -206,5 +207,6 @@ if __name__ == "__main__":
     print(b)
     print(c)
     print(d)
+    print(c[-1])
 #print(max(xs))
 
