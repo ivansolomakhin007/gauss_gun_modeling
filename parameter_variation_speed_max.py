@@ -56,7 +56,7 @@ def main(circuit, n_circuits):
             gamma = circuit.R / (2 * circuit.L)
             omega0 = 1 / (circuit.L * circuit.C) ** 0.5
             if omega0 > gamma:
-                print("Живем в периодическом режиме")
+                #print("Живем в периодическом режиме")
                 omega = (omega0 ** 2 - gamma ** 2) ** 0.5
                 # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
                 return circuit.C * circuit.U0 * e ** (-gamma * t) * (
@@ -64,7 +64,7 @@ def main(circuit, n_circuits):
             elif omega0 == gamma:
                 return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
             else:
-                print("Живем в апериодическом режиме")
+                #print("Живем в апериодическом режиме")
                 epsilon = (- omega0 ** 2 + gamma ** 2) ** 0.5
 
                 try:
@@ -170,29 +170,8 @@ def main(circuit, n_circuits):
     ODE.set_initial_value(np.array([-0.05, 0]), 0)  # задание начальных значений
     ODE.integrate(tmax)  # решение ОДУ
 
-    print(xs)
-    print(vs)
-    print(ts)
 
-    import matplotlib.pyplot as plt
-    fig, axs = plt.subplots(3)
-    fig.suptitle('Vertically stacked subplots')
-    # axs[0].plot(ts[:700], xs[:700])
-    # координата от времени
-    axs[0].plot(ts, xs)
-    #axs[0].set_xlim([0, 5])
-    # axs[0].title("x(t)")
-    # axs[1].plot(ts[1530:1550], vs[1530:1550])
-    # скорость от времени
-    axs[1].plot(ts, vs)
-    # ток от времени
-    axs[2].plot(ts, current(np.array(ts), [-0.05, 0], circuits[0]))
-    #axs[1].set_xlim([0, 5])
-    # axs[1].title("v(t)")
-
-    x = np.arange(-2, 2, 0.01)
     # plt.plot(x, f1(0, [x, 0])[1])
-    plt.show()
     return ts, xs, vs, Is
 
 
@@ -200,9 +179,3 @@ circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2
 n_circuit = 2
 
 a, b, c, d = main(circuits, n_circuit)
-print(a)
-print(b)
-print(c)
-print(d)
-#print(max(xs))
-
