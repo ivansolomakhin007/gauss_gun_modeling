@@ -116,7 +116,8 @@ def main(circuit, n_circuits):
         ts.append(t)
         xs.append(vars[0])
         vs.append(vars[1])
-        Is.ap
+        for i in range(n_circuits):
+             Is.append([])
 
 
     # n_circuit
@@ -198,7 +199,7 @@ def main(circuit, n_circuits):
     return ts, xs, vs
 
 
-circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.0001, D=0.001, x1=-0.05, x2=0.05), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.0001, D=0.001, x1=0.1, x2=0.2)]
+circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2)]
 n_circuit = 2
 
 a, b, c = main(circuits, n_circuit)
