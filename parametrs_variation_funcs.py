@@ -91,7 +91,7 @@ def main(circuit, n_circuits):
         length = circuit.x2 - circuit.x1
         D = circuit.D
         x = vars[0]
-        x_new = x - (circuit.x2 + circuit.x1)  # координата шарика относительно катушки
+        x_new = x - (circuit.x2 + circuit.x1)/2  # координата шарика относительно катушки
         #print(I, n, length, D, x, x_new)
 
         return mu0 / 2 * I * n * 8 * D ** 2 * (
