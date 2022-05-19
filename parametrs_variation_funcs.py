@@ -117,7 +117,7 @@ def main(circuit, n_circuits):
         xs.append(vars[0])
         vs.append(vars[1])
         for i in range(n_circuits):
-             Is.append([])
+             Is[i].append(current(t, [vars[0], vars[1]], circuits[1]))
 
 
     # n_circuit
@@ -186,9 +186,6 @@ def main(circuit, n_circuits):
     # скорость от времени
     axs[1].plot(ts, vs)
     # ток от времени
-    I = []
-    for i in range(len(circuits)):
-        I.append(current(np.array(ts), [-0.05, 0], circuits[i]))
     axs[2].plot(ts, current(np.array(ts), [-0.05, 0], circuits[0]))
     #axs[1].set_xlim([0, 5])
     # axs[1].title("v(t)")
@@ -196,15 +193,16 @@ def main(circuit, n_circuits):
     x = np.arange(-2, 2, 0.01)
     # plt.plot(x, f1(0, [x, 0])[1])
     plt.show()
-    return ts, xs, vs
+    return ts, xs, vs, Is
 
 
 circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2)]
 n_circuit = 2
 
-a, b, c = main(circuits, n_circuit)
+a, b, c, d = main(circuits, n_circuit)
 print(a)
 print(b)
 print(c)
+print(d)
 #print(max(xs))
 
