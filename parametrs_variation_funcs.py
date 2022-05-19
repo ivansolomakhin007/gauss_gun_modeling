@@ -17,7 +17,7 @@ class Circuit:
        n -плотность намотки
        x1 - начало катушки
        x2 - конец катушки
-       R - сопротивление схемы
+       R - дополнительное сопротивление схемы
        D - радиус катушки
        t0 - храним время зажигания системы. None -> цепь еще не включилась
        """
@@ -36,7 +36,7 @@ class Circuit:
         self.x2 = x2
         self.t0 = -1
     def __str__(self):
-        return [self.U0, self.x0, self.C, self.x1, self.x2, self.R, self.D]
+        return str([self.U0, self.x0, self.C, self.x1, self.x2, self.R, self.D, self.d])
 
 def main(circuits, n_circuits):
     # складируем времена, координаты и скорости
@@ -58,7 +58,7 @@ def main(circuits, n_circuits):
             gamma = circuit.R / (2 * circuit.L)
             omega0 = 1 / (circuit.L * circuit.C) ** 0.5
             if omega0 > gamma:
-                print("Живем в периодическом режиме")
+                #print("Живем в периодическом режиме")
                 omega = (omega0 ** 2 - gamma ** 2) ** 0.5
                 # print(circuit.C * circuit.U0 * e ** (-gamma * t) * (-gamma * np.cos(omega * (t - circuit.t0))))
                 return circuit.C * circuit.U0 * e ** (-gamma * t) * (
@@ -66,7 +66,7 @@ def main(circuits, n_circuits):
             elif omega0 == gamma:
                 return circuit.C * circuit.U0 * gamma ** 2 * (t - circuit.t0) * e ** (-gamma * (t - circuit.t0))
             else:
-                print("Живем в апериодическом режиме")
+                #print("Живем в апериодическом режиме")
                 epsilon = (- omega0 ** 2 + gamma ** 2) ** 0.5
 
                 try:
@@ -197,6 +197,7 @@ def main(circuits, n_circuits):
     # plt.plot(x, f1(0, [x, 0])[1])
     plt.show()
     #return ts, xs, vs, Is
+
 
 if __name__ == "__main__":
     circuits = [Circuit(U0=24, x0=-0.05, C=10 ** (-3), R=0.01, D=0.001, x1=-0.05, x2=0.05, d=0.002), Circuit(U0=24, x0=0.1, C=10 ** (-3), R=0.00000001, D=0.001, x1=0.1, x2=0.2, d=0.002)]
