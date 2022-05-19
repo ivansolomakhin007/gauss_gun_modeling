@@ -23,11 +23,11 @@ for i in range(N):
         c = 10**(randint(-6, 2))
         R = 10**(randint(-3, 2))
         radius = np.sqrt(10**(-6)*choice([.5, .75, 1, 1.5, 2, 2.5 , 4, 6, 10, 16, 25, 35])/np.pi)
-        width = randint(1, 20)/2
+        width = randint(1, 20)/200
         x0 = randint(-10, 10)/10
         x1 = all_x[j*2]
         x2 = all_x[j*2+1]
-        R_sum = R + rho*(x2-x1)/(np.pi*radius**2)
+        R_sum = R
         circuits.append(Circuit(U0=u, x0=x0, C=c, R=R_sum, D=width, x1=x1, x2=x2, d = 2*radius))
 
 

@@ -7,6 +7,7 @@ mu0 = 1.25663706 * 10 ** -6  # магнитная константа
 
 S = 1 # мм^2
 
+rho = 0.0175*10**(-6)
 
 
 class Circuit:
@@ -32,12 +33,13 @@ class Circuit:
         self.L = mu0 * self.n**2 * (x2 - x1) * pi * D**2
         #print("Индуктивность схема:", self.L)
         self.C = C
-        self.R = R
+        self.R_add = R
+        self.R = R+rho*(x2-x1)/(np.pi*(d/2)**2)
         self.x1 = x1
         self.x2 = x2
         self.t0 = -1
     def __str__(self):
-        return str([self.U0, self.x0, self.C, self.x1, self.x2, self.R, self.D, self.d])
+        return str([self.U0, self.x0, self.C, self.x1, self.x2, self.R_add, self.D, self.d])
 
 def main(circuits, n_circuits):
     # складируем времена, координаты и скорости
