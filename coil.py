@@ -251,16 +251,16 @@ def main(circuits, n_circuits):
             self.image = Coil.image_1[0]
             self.rect = Coil.image_1[0].get_rect()
 
-            self.rect.x = circ.x1 * 2 * 500 + 100
+            self.rect.x = circ.x1 * 2 * 100 + 100
             self.rect.centery = 510
 
             self.I1 = []
             self.I2 = []
 
             for i in Coil.image_1:
-                self.I1.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 2 * 500, circ.D * 1000)))
+                self.I1.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 2 * 100, circ.D * 1000)))
             for i in Coil.image_2:
-                self.I2.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 2 * 500, circ.D * 1000)))
+                self.I2.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 2 * 100, circ.D * 1000)))
 
             self.Imax = 10
             self.I = 0
@@ -306,11 +306,13 @@ def main(circuits, n_circuits):
         z.Imax = max(Is[i])
         all_sprites.add(z)
         L.append(z)
+    L[2].rect.centery = 500
+    L[1].rect.centery = 515
     for i in range(len(ts)):
         screen.fill((255, 255, 255))
         for j in range(n_circuits):
             L[j].update(Is[j][i])
-        b.update(xs[i] * 2 * 500)
+        b.update(xs[i] * 2 * 100)
         all_sprites.draw(screen)
         pygame.display.flip()
     pygame.quit()
