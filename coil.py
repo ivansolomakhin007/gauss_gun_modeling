@@ -182,7 +182,7 @@ def main(circuits, n_circuits):
     #return ts, xs, vs, Is
 
     import matplotlib.pyplot as plt
-    fig, axs = plt.subplots(4)
+    fig, axs = plt.subplots(5)
     fig.suptitle('Vertically stacked subplots')
     # axs[0].plot(ts[:700], xs[:700])
     # координата от времени
@@ -197,8 +197,10 @@ def main(circuits, n_circuits):
     # ток от времени
     axs[2].plot(ts, Is[0])
     axs[2].set_title(r"Ток $I$ в цепи №1 от времени $t$")
-    axs[3].plot(ts, Is[1])
+    axs[3].plot(ts, Is[0])
     axs[3].set_title(r"Ток $I$ в цепи №2 от времени $t$")
+    axs[4].plot(ts, Is[0])
+    axs[4].set_title(r"Ток $I$ в цепи №3 от времени $t$")
     #axs[1].set_xlim([0, 5])
     # axs[1].title("v(t)")
 
@@ -249,16 +251,16 @@ def main(circuits, n_circuits):
             self.image = Coil.image_1[0]
             self.rect = Coil.image_1[0].get_rect()
 
-            self.rect.x = circ.x1 * 1000 + 100
-            self.rect.centery = 520
+            self.rect.x = circ.x1 * 2 * 500 + 100
+            self.rect.centery = 510
 
             self.I1 = []
             self.I2 = []
 
             for i in Coil.image_1:
-                self.I1.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 500, circ.D * 500)))
+                self.I1.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 2 * 500, circ.D * 1000)))
             for i in Coil.image_2:
-                self.I2.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 500, circ.D * 500)))
+                self.I2.append(pygame.transform.scale(i, ((circ.x2 - circ.x1) * 2 * 500, circ.D * 1000)))
 
             self.Imax = 10
             self.I = 0
@@ -308,7 +310,7 @@ def main(circuits, n_circuits):
         screen.fill((255, 255, 255))
         for j in range(n_circuits):
             L[j].update(Is[j][i])
-        b.update(xs[i] * 500)
+        b.update(xs[i] * 2 * 500)
         all_sprites.draw(screen)
         pygame.display.flip()
     pygame.quit()
@@ -321,7 +323,7 @@ def main(circuits, n_circuits):
 
 
 if __name__ == "__main__":
-    n_circuit = 2
+    n_circuit = 3
     def create_circuits(args):
         Circuits = []
         for i in range(n_circuit):
@@ -330,9 +332,12 @@ if __name__ == "__main__":
     good_circuit = np.array([[1.338185915960346, -0.5606662736602739, 2.8716897855321095,
                               0.03943118032813586, 0.692536194926218, 0.03224658060051818,
                               0.07032583793884348, 0.0009772050238058398],
-                             [0.9712912929804354 + 0.7, -0.4758710440494831, 11.96756807743066,
-                              0.22080862076389352 + 0.7, 0.8729202340593378 + 0.7, 0.005204747565093779,
-                              0.06373397580139444, 0.003568248232305542]])
+                             [-3.9712912929804354, -0.4758710440494831 + 1, 11.96756807743066,
+                              0.22080862076389352 + 1, 0.8729202340593378 + 1, 0.005204747565093779,
+                              0.06373397580139444, 0.003568248232305542],
+                             [-5.9298778304957942, -0.7666926471606885 + 2, 1.725908998329243,
+                              0.330688160913887 + 2, 0.9275923247181218 + 2, 0.00431520742312402,
+                              0.09013138360067936, 0.002256758334191025]])
     circuits = create_circuits(good_circuit)
     a, b, c, d = main(circuits, n_circuit)
 
